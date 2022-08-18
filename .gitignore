@@ -1,0 +1,9 @@
+data/
+work/
+models/
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+*.ipynb
+
+.vscode
+.virtual_documents
