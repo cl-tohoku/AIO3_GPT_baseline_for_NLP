@@ -11,7 +11,10 @@
   - [環境構築](#環境構築)
   - [データセット](#データセット)
     - [開発用データ](#開発用データ)
+    - [テスト用データ](#テスト用データ)
   - [日本語GPTモデルによるzero-shot推論](#日本語gptモデルによるzero-shot推論)
+    - [開発用データ](#開発用データ-1)
+    - [テスト用データ](#テスト用データ-1)
 
 ## 環境構築
 - cuda バージョンに合わせて、以下より torch をインストールして下さい。
@@ -59,12 +62,31 @@ $ mkdir models
   }
 
 ```
+### テスト用データ
+第3回コンペティションのリーダーボード投稿用テストデータは下記よりダウンロードできます。
+- [リーダーボード投稿用テストデータ](https://www.google.com/url?q=https%3A%2F%2Fjaqket.s3.ap-northeast-1.amazonaws.com%2Fdata%2Faio_03%2Faio_03_test_unlabeled.jsonl&sa=D&sntz=1&usg=AOvVaw2VL7kspkyoOnakZZr6FUDR)
+
+テストデータは，質問 ID (  qid  ) と問題文 (  question  ) のみを含んだ下記のような JSON Lines (jsonl) 形式になっています。
+```json
+{"qid": "AIO02-1001", "question": "全長は約10.9km。アメリカの国道1号線の一部である、フロリダ・キーズの島々を結ぶ橋の名前は何?"}
+
+{"qid": "AIO02-1002", "question": "コロイド溶液に光を通した時、光の散乱によって道筋が見える、という現象を、発見者にちなんで何現象という?"}
+```
+
 ## 日本語GPTモデルによるzero-shot推論
 以下のコードを実行することでrinna株式会社の[日本語GPTモデル](https://huggingface.co/rinna/japanese-gpt-1b)によるzero-shot推論を行うことができる。
+### 開発用データ
 ```bash
 #実行例
 $ python eval_model_jsonl.py path/to/eval_file.jsonl --output_file work/model_answer.csv
 ```
+### テスト用データ
+以下のコードを実行することでリーダーボードに投稿できる形式の解答ファイルを出力できる。
+```bash
+#実行例
+$ python eval_model_jsonl_unlabel.py path/to/eval_file.jsonl --output_file work/model_answer.jsonl
+```
+
 
 __Accuracy__
 - 第二回の開発データ1000問を予測した際の正解率 (Exact Match)
