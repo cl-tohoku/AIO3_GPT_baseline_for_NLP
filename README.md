@@ -9,21 +9,20 @@
 - [AIO3_GPT_baseline](#aio3_gpt_baseline)
   - [目次](#目次)
   - [環境構築](#環境構築)
+    - [Dockerコンテナの起動](#dockerコンテナの起動)
   - [データセット](#データセット)
     - [開発用データ](#開発用データ)
     - [テスト用データ](#テスト用データ)
   - [日本語GPTモデルによるzero-shot推論](#日本語gptモデルによるzero-shot推論)
     - [開発用データ](#開発用データ-1)
     - [テスト用データ](#テスト用データ-1)
+    - [最終提出](#最終提出)
 
 ## 環境構築
-- cuda バージョンに合わせて、以下より torch をインストールして下さい。
-  - [https://pytorch.org](https://pytorch.org)
-
-- その他のライブラリについては以下のコマンドを実行してインストールして下さい。
-
+- まず、以下のコマンドで本リポジトリをクローンしてください。
 ```bash
-$ pip install -r requirements.txt
+$ git clone https://github.com/cl-tohoku/AIO3_GPT_baseline_private.git
+$ cd AIO3_GPT_baseline
 ```
 
 - 以下のコマンドでdataディレクトリとworkディレクトリ、modelsディレクトリを作成してください。
@@ -32,6 +31,21 @@ $ mkdir data
 $ mkdir work
 $ mkdir models
 ```
+### Dockerコンテナの起動
+- 以下のコマンドによってDockerコンテナを起動します
+```bash
+$ docker image build --tag aio3_gpt:latest .
+$ docker container run --name gpt_baseline \
+  --rm \
+  --interactive \
+  --tty \
+  --gpus all \
+  --mount type=bind,src=$(pwd),dst=/code/AIO3_GPT_baseline \
+  aio3_gpt:latest \
+  bash
+```
+
+
 ## データセット
 
 - 訓練データには、クイズ大会[「abc/EQIDEN」](http://abc-dive.com/questions/) の過去問題に対して Wikipedia の記事段落の付与を自動で行ったものを使用しています。
@@ -45,7 +59,7 @@ $ mkdir models
 
 ### 開発用データ
 
-主に以下に示した要素からなるjson lines形式のファイル。
+主に以下に示した要素からなるjson lines形式のファイルになっています。
 - `qid`: 問題インデックス
 - `number`: 整数型の問題インデックス
 - `question`: 質問
@@ -74,14 +88,14 @@ $ mkdir models
 ```
 
 ## 日本語GPTモデルによるzero-shot推論
-以下のコードを実行することでrinna株式会社の[日本語GPTモデル](https://huggingface.co/rinna/japanese-gpt-1b)によるzero-shot推論を行うことができる。
+以下のコードを実行することでrinna株式会社の[日本語GPTモデル](https://huggingface.co/rinna/japanese-gpt-1b)によるzero-shot推論を行うことができます。
 ### 開発用データ
 ```bash
 #実行例
 $ python eval_model_jsonl.py path/to/eval_file.jsonl --output_file work/model_answer.csv
 ```
 ### テスト用データ
-以下のコードを実行することでリーダーボードに投稿できる形式の解答ファイルを出力できる。
+以下のコードを実行することでリーダーボードに投稿できる形式の解答ファイルを出力できます。
 ```bash
 #実行例
 $ python eval_model_jsonl_unlabel.py path/to/eval_file.jsonl --output_file work/model_answer.jsonl
@@ -94,3 +108,9 @@ __Accuracy__
 | データ     |  Acc |
 | :--------- | ---: |
 | 評価セット | 31.6 |
+
+### 最終提出
+- 最終提出の際はDockerイメージを提出する必要があります。その際、以下のコマンドで実行可能な推論スクリプト`submission.sh`を含む必要があります。
+```bash
+bash ./submission.sh <input_file> <output_file>
+```

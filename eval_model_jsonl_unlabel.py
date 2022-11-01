@@ -75,10 +75,6 @@ if __name__ == "__main__":
                         type=str,
                         default="work/model_answer.jsonl",
                         help="GPTモデルの出力結果を格納するファイル。")
-    parser.add_argument("--sample",
-                        default=-1,
-                        type=int,
-                        help="モデルに解かせる問題数。指定がない場合は全データに対して推論を行う。")
     parser.add_argument("--save_model",
                         action="store_true",
                         help="日本語GPTモデルを自分のパソコンに保存する")
