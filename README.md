@@ -21,7 +21,7 @@
 ## 環境構築
 - まず、以下のコマンドで本リポジトリをクローンしてください。
 ```bash
-$ git clone https://github.com/cl-tohoku/AIO3_GPT_baseline_private.git
+$ git clone https://github.com/cl-tohoku/AIO3_GPT_baseline.git
 $ cd AIO3_GPT_baseline
 ```
 
