@@ -98,7 +98,7 @@ $ python eval_model_jsonl.py path/to/eval_file.jsonl --output_file work/model_an
 以下のコードを実行することでリーダーボードに投稿できる形式の解答ファイルを出力できます。
 ```bash
 #実行例
-$ python eval_model_jsonl_unlabel.py path/to/eval_file.jsonl --output_file work/model_answer.jsonl
+$ python eval_model_jsonl_unlabel.py path/to/eval_file.jsonl --output_file work/model_answer.jsonl --save_model
 ```
 
 
