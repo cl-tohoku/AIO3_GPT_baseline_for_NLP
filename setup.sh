@@ -15,7 +15,7 @@ mkdir -p data work models
 
 #### TODO: add ####
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install --user -r requirements.txt
 
 #wget -P data https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_02/aio_02_train.jsonl
 #wget -P data https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_03/aio_03_test_unlabeled.jsonl
