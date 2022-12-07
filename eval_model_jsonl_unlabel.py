@@ -5,6 +5,7 @@ from transformers import T5Tokenizer, AutoModelForCausalLM, AutoTokenizer, AutoM
 from tqdm import tqdm
 import argparse
 import os
+from util import add_prompt
 
 
 def main(args):
@@ -32,11 +33,12 @@ def main(args):
     model_answers = []
     max_length = 100
     for question in tqdm(questions):
-        question = question + "答えは「"
+        question = add_prompt(question)
         token_ids = tokenizer.encode(
             question, add_special_tokens=False, return_tensors="pt")
         model.eval()
         with torch.no_grad():
+            # generate answer
             output_ids = model.generate(
                 token_ids.to(model.device),
                 max_length=len(token_ids[0])+max_length,

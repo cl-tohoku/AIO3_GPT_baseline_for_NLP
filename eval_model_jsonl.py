@@ -5,9 +5,10 @@ from transformers import T5Tokenizer, AutoModelForCausalLM, AutoTokenizer, AutoM
 from tqdm import tqdm
 import argparse
 import os
-
+from util import add_prompt
 
 def main(args):
+    ### load pretrained model (https://huggingface.co/rinna/japanese-gpt-1b) ###
     path = 'models/japanese-gpt.pt'
     if os.path.exists(path):
         print("model loading via offline...")
@@ -27,6 +28,9 @@ def main(args):
     if torch.cuda.is_available():
         model = model.to("cuda")
     print("INFO: The model was loaded.")
+
+
+    ### load data ###
     data = pd.read_json(args.input_file, lines=True)
     if args.sample > 0:
         data = data.sample(n=args.sample)
@@ -36,7 +40,7 @@ def main(args):
     model_answers = []
     max_length = 100
     for text in tqdm(texts, total=len(texts)):
-        text = text + "答えは「"
+        text = add_prompt(text)
         token_ids = tokenizer.encode(
             text, add_special_tokens=False, return_tensors="pt")
         model.eval()
@@ -56,7 +60,7 @@ def main(args):
 
         output = tokenizer.decode(output_ids.tolist()[0])
         try:
-            model_ans = re.findall("「(.*?)」", output)[-1]
+            model_ans = re.findall("「(.*?)」", output)[-1] # capture 「」
         except IndexError:
             model_ans = output
             print("longer output:", output)
@@ -94,7 +98,7 @@ if __name__ == "__main__":
                         help="モデルに解かせる問題数。指定がない場合は全データに対して推論を行う。")
     parser.add_argument("--save_model",
                         action="store_true",
-                        help="日本語GPTモデルを自分のパソコンに保存する")
+                        help="If true, save japanese GPT model in local environment")
     args = parser.parse_args()
 
     main(args)
