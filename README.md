@@ -1,15 +1,15 @@
 # Introduction
-This repository holds a baseline model for exercises in Natural Language Processing 2023
+This repository holds a baseline model for exercises in Natural Language Processing 2023.
 
 
 ## Environment construction
-- First, clone this repository with the following command
+- First, clone this repository with the following command.
 ```bash
 $ git clone https://github.com/cl-tohoku/AIO3_GPT_baseline_for_NLP.git
 $ cd AIO3_GPT_baseline_for_NLP
 ```
 
-- Execute the following command
+- Execute the following command.
 ```bash
 $ bash setup.sh
 ```
@@ -17,7 +17,7 @@ $ bash setup.sh
 
 ### Development Data
 
-The file is in json lines format, consisting mainly of the elements shown below
+The file is in json lines format, consisting mainly of the elements shown below.
 - `qid`: question id
 - `number`: integer type question id
 - `question`: question
@@ -43,22 +43,21 @@ The test data is in JSON Lines (jsonl) format as shown below, containing only th
 ```
 
 ## Zero-shot inference using Japanese GPT model
-By executing the following code, you can perform zero-shot inference using rinna Corporation's [Japanese GPT model](https://huggingface.co/rinna/japanese-gpt-1b)
+By executing the following code, you can perform zero-shot inference using rinna Corporation's [Japanese GPT model](https://huggingface.co/rinna/japanese-gpt-1b).
 ### Development Data
 ```bash
 # Example
 $ python eval_model_jsonl.py data/aio_02_train.jsonl --output_file work/model_answer.csv --save_model
 ```
 ### Test Data
-By executing the following code, you can output model answers for test data 
+By executing the following code, you can output model answers for test data.
 ```bash
 # Example
 $ python eval_model_jsonl_unlabel.py data/aio_02_dev_unlabeled_v1.0.jsonl --output_file work/model_answer.jsonl
 ```
 
 ## Exercise Contents
-Add sentences to the question text to create your own prompt
-Fix add_prompt function in util.py
+Add sentences to the question text to create your own prompt. Fix add_prompt function in util.py.
 ```python
 '''
 Input: question
