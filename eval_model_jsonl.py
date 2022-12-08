@@ -7,6 +7,7 @@ import argparse
 import os
 from util import add_prompt
 
+
 def main(args):
     ### load pretrained model (https://huggingface.co/rinna/japanese-gpt-1b) ###
     path = 'models/japanese-gpt.pt'
@@ -43,7 +44,7 @@ def main(args):
 
     ### predict answer ###
     for text in tqdm(texts, total=len(texts)):
-        text = add_prompt(text) # add your prompt to question
+        text = add_prompt(text) # add your own prompt to question
         token_ids = tokenizer.encode(
             text, add_special_tokens=False, return_tensors="pt")
         model.eval()
@@ -68,14 +69,14 @@ def main(args):
             model_ans = output
             print("longer output:", output)
         model_answers.append(model_ans)
-    assert len(model_answers) == len(answers), f"モデル出力と実際のデータ数が一致していません。"
+    assert len(model_answers) == len(answers), f"Model output does not match input data count."
     correct = [1 if result in gold else 0 for result,
                gold in zip(model_answers, answers)]
     correct_num = correct.count(1)
     acc = correct_num/len(model_answers)
-    print(f"問題数:{len(answers)}")
-    print(f"正解数:{correct_num}")
-    print(f"正解率:{acc:.3f}")
+    print(f"Number of questions:{len(answers)}")
+    print(f"Number of correct answers:{correct_num}")
+    print(f"Accuracy rate:{acc:.3f}")
     df_ans = pd.DataFrame([texts, answers, model_answers, correct], index=[
         "question", "answers", "prediction", "correct"]).T
     df_ans.to_csv(args.output_file)
@@ -84,23 +85,23 @@ def main(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="""
-    日本語GPTモデルによるQAのzero-shot推論のサンプルコード。
+    Sample code for zero-shot inference of QA with Japanese GPT model for development data.
     """)
     parser.add_argument("input_file",
                         type=str,
-                        help="json lines形式で1行1問で書かれている評価データセット。"
-                        )
+                        default="data/dev.jsonl",
+                        help="Evaluation data set written in json lines format with one question per line.")
     parser.add_argument("--output_file",
                         type=str,
                         default="work/model_answer.csv",
-                        help="GPTモデルの出力結果を格納するファイル。")
+                        help="Where to save GPT model output.")
     parser.add_argument("--sample",
                         default=-1,
                         type=int,
-                        help="モデルに解かせる問題数。指定がない場合は全データに対して推論を行う。")
+                        help="Number of questions to be solved by the model. If not specified, inference is performed on all data.")
     parser.add_argument("--save_model",
                         action="store_true",
-                        help="If true, save japanese GPT model in local environment")
+                        help="If true, save japanese GPT model in local environment.")
     args = parser.parse_args()
 
     main(args)

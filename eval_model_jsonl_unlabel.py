@@ -9,6 +9,7 @@ from util import add_prompt
 
 
 def main(args):
+    ### load pretrained model (https://huggingface.co/rinna/japanese-gpt-1b) ###
     path = 'models/japanese-gpt.pt'
     if os.path.exists(path):
         print("model loading via offline...")
@@ -28,17 +29,20 @@ def main(args):
     if torch.cuda.is_available():
         model = model.to("cuda")
     print("INFO: The model was loaded.")
+
+    ### load data ###
     data = pd.read_json(args.input_file, lines=True)
     questions = list(data["question"])
     model_answers = []
     max_length = 100
+
+    ### predict answer ###
     for question in tqdm(questions):
-        question = add_prompt(question)
+        question = add_prompt(question) # add your own prompt to question
         token_ids = tokenizer.encode(
             question, add_special_tokens=False, return_tensors="pt")
         model.eval()
         with torch.no_grad():
-            # generate answer
             output_ids = model.generate(
                 token_ids.to(model.device),
                 max_length=len(token_ids[0])+max_length,
@@ -54,12 +58,12 @@ def main(args):
 
         output = tokenizer.decode(output_ids.tolist()[0])
         try:
-            model_ans = re.findall("「(.*?)」", output)[-1]
+            model_ans = re.findall("「(.*?)」", output)[-1] # capture 「」
         except IndexError:
             model_ans = output
             print("longer output:", output)
         model_answers.append(model_ans)
-    assert len(model_answers) == len(questions), f"モデル出力と実際のデータ数が一致していません。"
+    assert len(model_answers) == len(questions), f"Model output does not match input data count."
     data["prediction"] = model_answers
     data.drop(columns=["question"],inplace=True)
     data.to_json(args.output_file, orient='records', force_ascii=False, lines=True)
@@ -67,19 +71,20 @@ def main(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="""
-    日本語GPTモデルによるQAのzero-shot推論のサンプルコード。
+    Sample code for zero-shot inference of QA with Japanese GPT model for test data.
     """)
     parser.add_argument("input_file",
                         type=str,
-                        help="json lines形式で1行1問で書かれている評価データセット。"
-                        )
+                        default="data/test.jsonl",
+                        help="Evaluation data set written in json lines format with one question per line.")
     parser.add_argument("--output_file",
                         type=str,
                         default="work/model_answer.jsonl",
-                        help="GPTモデルの出力結果を格納するファイル。")
+                        help="Where to save GPT model output.")
     parser.add_argument("--save_model",
                         action="store_true",
                         help="If true, save japanese GPT model in local environment")
+
     args = parser.parse_args()
 
     main(args)
