@@ -47,7 +47,7 @@ By executing the following code, you can perform zero-shot inference using rinna
 ### Development Data
 ```bash
 # Example
-$ python eval_model_jsonl.py data/aio_02_train.jsonl --output_file work/model_answer.csv --save_model
+$ python eval_model_jsonl.py data/aio_02_train_1000.jsonl --output_file work/model_answer.csv --save_model
 ```
 ### Test Data
 By executing the following code, you can output model answers for test data.
