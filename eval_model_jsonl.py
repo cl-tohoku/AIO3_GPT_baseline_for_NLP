@@ -38,9 +38,12 @@ def main(args):
     texts = list(data["original_question"])
     answers = list(data["answers"])
     model_answers = []
-    max_length = 100
+    max_length = 100 
+
+
+    ### predict answer ###
     for text in tqdm(texts, total=len(texts)):
-        text = add_prompt(text)
+        text = add_prompt(text) # add your prompt to question
         token_ids = tokenizer.encode(
             text, add_special_tokens=False, return_tensors="pt")
         model.eval()
@@ -49,7 +52,7 @@ def main(args):
                 token_ids.to(model.device),
                 max_length=len(token_ids[0])+max_length,
                 min_length=1,
-                do_sample=False,  # これをFalseにするとランダム性が消える？
+                do_sample=False,
                 top_k=500,
                 top_p=0.95,
                 pad_token_id=tokenizer.pad_token_id,
@@ -74,8 +77,7 @@ def main(args):
     print(f"正解数:{correct_num}")
     print(f"正解率:{acc:.3f}")
     df_ans = pd.DataFrame([texts, answers, model_answers, correct], index=[
-        "問題", "答え", "モデル出力", "自動評価"]).T
-    # df_ans.to_csv('work/model_ans_ver2.csv')
+        "question", "answers", "prediction", "correct"]).T
     df_ans.to_csv(args.output_file)
 
 

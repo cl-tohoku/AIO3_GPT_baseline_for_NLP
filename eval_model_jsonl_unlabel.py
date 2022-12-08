@@ -79,7 +79,7 @@ if __name__ == "__main__":
                         help="GPTモデルの出力結果を格納するファイル。")
     parser.add_argument("--save_model",
                         action="store_true",
-                        help="日本語GPTモデルを自分のパソコンに保存する")
+                        help="If true, save japanese GPT model in local environment")
     args = parser.parse_args()
 
     main(args)

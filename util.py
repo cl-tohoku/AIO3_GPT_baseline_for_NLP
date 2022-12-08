@@ -1,7 +1,12 @@
+from typing import Any
+
 '''
 Input: question
 Output: prompt
+Note:
+    ・The model's answer is the content of the model's output 「」
+    ・So, it is better to end the prompt with 「 
 '''
-def add_prompt(text: str) -> str:
+def add_prompt(question: str, **kwargs: dict[str, Any]) -> str:
     # Add your prompt
-    return f'{text}答えは「'
+    return f'{question}答えは「'

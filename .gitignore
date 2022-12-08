@@ -4,7 +4,7 @@ models/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
 *.ipynb
-__pycache__
+__pycache__/
 
 .vscode
 .virtual_documents
