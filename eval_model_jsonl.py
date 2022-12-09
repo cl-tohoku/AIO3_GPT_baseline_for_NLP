@@ -9,22 +9,33 @@ from util import add_prompt
 
 
 def main(args):
-    ### load pretrained model (https://huggingface.co/rinna/japanese-gpt-1b) ###
-    path = 'models/japanese-gpt.pt'
-    if os.path.exists(path):
+    ### load pretrained model ###
+    model_path = './models/japanese-gpt.pt'
+    tokenizer_path = './models/japanese-gpt_tokenizer'
+    if args.english_ver:
+        model_path = './models/english-gpt.pt'
+        tokenizer_path = './models/english-gpt_tokenizer'
+
+    if os.path.exists(model_path) and os.path.exists(tokenizer_path):
         print("model loading via offline...")
-        tokenizer = T5Tokenizer.from_pretrained(
-            "./models/japanese-gpt_tokeizer")
-        model = AutoModelForCausalLM.from_pretrained(
-            "./models/japanese-gpt.pt")
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+        model = AutoModelForCausalLM.from_pretrained(model_path)
     else:
         print("model loading via online...")
-        tokenizer = T5Tokenizer.from_pretrained("rinna/japanese-gpt-1b")
-        model = AutoModelForCausalLM.from_pretrained("rinna/japanese-gpt-1b")
+        if args.english_ver:
+            # https://huggingface.co/togethercomputer/GPT-JT-6B-v1
+            tokenizer = AutoTokenizer.from_pretrained("togethercomputer/GPT-JT-6B-v1")
+            model = AutoModelForCausalLM.from_pretrained("togethercomputer/GPT-JT-6B-v1",
+            load_in_8bit=True,
+            device_map="auto")
+        else:
+            # https://huggingface.co/rinna/japanese-gpt-1b
+            tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt-1b")
+            model = AutoModelForCausalLM.from_pretrained("rinna/japanese-gpt-1b")
         if args.save_model:
             print("saving model to local.")
-            tokenizer.save_pretrained("./models/japanese-gpt_tokeizer")
-            model.save_pretrained("./models/japanese-gpt.pt")
+            tokenizer.save_pretrained(tokenizer_path)
+            model.save_pretrained(model_path)
 
     if torch.cuda.is_available():
         model = model.to("cuda")
@@ -101,7 +112,10 @@ if __name__ == "__main__":
                         help="Number of questions to be solved by the model. If not specified, inference is performed on all data.")
     parser.add_argument("--save_model",
                         action="store_true",
-                        help="If true, save japanese GPT model in local environment.")
+                        help="If true, save GPT model in local environment.")
+    parser.add_argument("--english_ver",
+                        action="store_true",
+                        help="If true, use english GPT model.")
     args = parser.parse_args()
 
     main(args)
