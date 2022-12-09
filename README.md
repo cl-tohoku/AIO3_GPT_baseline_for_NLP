@@ -63,7 +63,7 @@ $ python eval_model_jsonl_unlabel.py data/test.jsonl --output_file work/model_an
 ```
 
 ## Exercise Contents
-Add sentences to the question text to create your own prompt. Fix add_prompt function in util.py.
+Add sentences to the question text to create your own prompt. Modify add_prompt function in util.py.
 ```python
 # util.py
 
