@@ -1,11 +1,10 @@
 import pandas as pd
-import re
 import torch
 from transformers import T5Tokenizer, AutoModelForCausalLM, AutoTokenizer, AutoModel
 from tqdm import tqdm
 import argparse
 import os
-from util import add_prompt
+from util import add_prompt, extract_answer
 
 
 def main(args):
@@ -23,11 +22,9 @@ def main(args):
     else:
         print("model loading via online...")
         if args.english_ver:
-            # https://huggingface.co/togethercomputer/GPT-JT-6B-v1
-            tokenizer = AutoTokenizer.from_pretrained("togethercomputer/GPT-JT-6B-v1")
-            model = AutoModelForCausalLM.from_pretrained("togethercomputer/GPT-JT-6B-v1",
-            load_in_8bit=True,
-            device_map="auto")
+            # https://huggingface.co/gpt2-xl
+            tokenizer = AutoTokenizer.from_pretrained("gpt2-xl")
+            model = AutoModelForCausalLM.from_pretrained("gpt2-xl")
         else:
             # https://huggingface.co/rinna/japanese-gpt-1b
             tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt-1b")
@@ -45,13 +42,13 @@ def main(args):
     ### load data ###
     data = pd.read_json(args.input_file, lines=True)
     if args.sample > 0:
-        data = data.sample(n=args.sample)
+        data = data.sample(n=args.sample, random_state=42)
 
-    texts = list(data["original_question"])
+    texts = list(data["question"])
     answers = list(data["answers"])
-    model_answers = []
-    max_length = 100 
 
+    model_answers = []
+    max_length = 10 
 
     ### predict answer ###
     for text in tqdm(texts, total=len(texts)):
@@ -60,22 +57,32 @@ def main(args):
             text, add_special_tokens=False, return_tensors="pt")
         model.eval()
         with torch.no_grad():
-            output_ids = model.generate(
-                token_ids.to(model.device),
-                max_length=len(token_ids[0])+max_length,
-                min_length=1,
-                do_sample=False,
-                top_k=500,
-                top_p=0.95,
-                pad_token_id=tokenizer.pad_token_id,
-                bos_token_id=tokenizer.bos_token_id,
-                eos_token_id=tokenizer.eos_token_id,
-                bad_word_ids=[[tokenizer.unk_token_id]]
-            )
+            if args.english_ver:
+                output_ids = model.generate(
+                    token_ids.to(model.device),
+                    max_length=len(token_ids[0])+max_length,
+                    min_length=1,
+                    pad_token_id=tokenizer.eos_token_id,
+                    do_sample=False,
+                )
+            else:
+                output_ids = model.generate(
+                    token_ids.to(model.device),
+                    max_length=len(token_ids[0])+max_length,
+                    min_length=1,
+                    do_sample=False,
+                    top_k=500,
+                    top_p=0.95,
+                    pad_token_id=tokenizer.pad_token_id,
+                    bos_token_id=tokenizer.bos_token_id,
+                    eos_token_id=tokenizer.eos_token_id,
+                    bad_word_ids=[[tokenizer.unk_token_id]]
+                )
 
         output = tokenizer.decode(output_ids.tolist()[0])
+        print('debug: ', output)
         try:
-            model_ans = re.findall("「(.*?)」", output)[-1] # capture 「」
+            model_ans = extract_answer(output, args.english_ver)
         except IndexError:
             model_ans = output
             print("longer output:", output)

@@ -13,6 +13,9 @@ mkdir -p data work models
 
 pip install --upgrade pip
 pip install --user -r requirements.txt
+pip install git+https://github.com/huggingface/transformers.git                                   
+pip install accelerate
+pip install bitsandbytes
 
 # Download data
 wget -nc -O data/dev.jsonl https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_02/aio_02_train.jsonl
