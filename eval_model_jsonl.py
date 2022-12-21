@@ -8,17 +8,29 @@ import os
 from util import add_prompt, extract_answer
 import accelerate
 import logging
+import json
 
-
-logger = logging.getLogger(__name__)
-fmt = "%(asctime)s %(levelname)s %(name)s : %(message)s"
-logging.basicConfig(level=logging.INFO, format=fmt)
 
 
 def main(args):
+    fmt = "%(asctime)s %(levelname)s %(name)s : %(message)s"
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG, format=fmt)
+    else:
+        logging.basicConfig(level=logging.INFO, format=fmt)
+    logger = logging.getLogger(__name__)
+    if args.debug:
+        logger.debug("DEBUG MODE")
+
+    fname, ext = os.path.splitext(args.output_file)
+    if ext != ".csv" and ext != ".jsonl":
+        logger.error(f"--output_file [{args.output_file}] should be *.csv or *.jsonl")
+        assert 0
+    logger.info(f"## output_file [{args.output_file}]")
+
     ### load pretrained model ###
     if args.lang == "en":
-        model_path = './models/english-gpt.pt'
+        model_path = "../model_en_v3/" #'./models/english-gpt.pt'
         tokenizer_path = './models/english-gpt_tokenizer'
     elif args.lang == "ja":
         model_path = './models/japanese-gpt.pt'
@@ -26,17 +38,16 @@ def main(args):
     else:
         assert 0, args.lang
 
-        
     if not args.force_load_model and os.path.exists(model_path) and os.path.exists(tokenizer_path):
-        logger.info("model loading via offline...")
+        logger.info(f"model loading via offline... {tokenizer_path} {model_path}")
         t_tkn = tokenizer_path
         t_mdl = model_path
     else:
         logger.info("model loading via online...")
         if args.lang == "en":
-            # https://huggingface.co/gpt2-xl
-            t_tkn = "gpt2-xl" #"EleutherAI/gpt-neo-1.3B" #"neulab/gpt2-finetuned-wikitext103" #"gpt2-xl"
-            t_mdl = "gpt2-xl" #"EleutherAI/gpt-neo-1.3B" #"neulab/gpt2-finetuned-wikitext103" #"gpt2-xl"
+            # https://huggingface.co/gpt2-large
+            t_tkn = "gpt2-large"
+            t_mdl = "gpt2-large"
         elif args.lang == "ja":
             # https://huggingface.co/rinna/japanese-gpt-1b
             t_tkn = "rinna/japanese-gpt-1b"
@@ -50,6 +61,15 @@ def main(args):
         #load_in_8bit=True,
         device_map="auto",
     )
+    if args.lang == "en":
+        logger.info(f"##### pad:[{tokenizer.pad_token_id}][{tokenizer.pad_token}] bos:[{tokenizer.bos_token_id}][{tokenizer.bos_token}] eos:[{tokenizer.eos_token_id}][{tokenizer.eos_token}]")
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+        tokenizer.pad_token = tokenizer.eos_token
+        logger.info(f"##### pad:[{tokenizer.pad_token_id}][{tokenizer.pad_token}] bos:[{tokenizer.bos_token_id}][{tokenizer.bos_token}] eos:[{tokenizer.eos_token_id}][{tokenizer.eos_token}]")
+    elif args.lang == "ja":
+        pass
+    else:
+        assert 0, args.lang
 
     if args.save_model:
         logger.info("saving model to local.")
@@ -75,13 +95,15 @@ def main(args):
     else:
         answers = None
     predictions = []
-    output_list = []    
-    max_length = 100 
+    output_list = []
+    max_length = 100
 
     logger.info("start estimation...")
     ### predict answer ###
     for text in tqdm(texts, total=len(texts)):
+        #################
         text = add_prompt(text, args.lang) # add your own prompt to question
+        #################
         token_ids = tokenizer.encode(
             text, add_special_tokens=False, return_tensors="pt")
         model.eval()
@@ -95,8 +117,8 @@ def main(args):
                     top_k=500,
                     top_p=0.95,
                     pad_token_id=tokenizer.pad_token_id,
-                    #bos_token_id=tokenizer.bos_token_id,
-                    #eos_token_id=tokenizer.eos_token_id,
+                    bos_token_id=tokenizer.bos_token_id,
+                    eos_token_id=tokenizer.eos_token_id,
                 )
             elif args.lang == "ja":
                 output_ids = model.generate(
@@ -104,8 +126,8 @@ def main(args):
                     max_length=len(token_ids[0])+max_length,
                     min_length=1,
                     do_sample=False,
-                    #top_k=500,
-                    #top_p=0.95,
+                    top_k=500,
+                    top_p=0.95,
                     pad_token_id=tokenizer.pad_token_id,
                     bos_token_id=tokenizer.bos_token_id,
                     eos_token_id=tokenizer.eos_token_id,
@@ -113,10 +135,16 @@ def main(args):
             else:
                 assert 0, args.lang
         output = tokenizer.decode(output_ids.tolist()[0])
-        logger.debug(f"debug: {answers[len(predictions)]} ||| {output}")
-        print(f"debug: {answers[len(predictions)]} ||| {output}")
+        ###
+        if answers is not None:
+            logger.debug(f"debug: {answers[len(predictions)]} ||| {output}")
+        else:
+            logger.debug(f"debug: {output}")
+        ###
         try:
-            model_ans = extract_answer(output, args.lang)
+            #################
+            model_ans = extract_answer(output, args.lang) # add your own answer extraction
+            #################
         except IndexError:
             model_ans = output
             logger.warning(f"longer output: {output}")
@@ -131,14 +159,40 @@ def main(args):
         print(f"Number of questions:{len(answers)}")
         print(f"Number of correct answers:{correct_num}")
         print(f"Accuracy rate:{acc:.3f}")
-        df_ans = pd.DataFrame([qid, texts, answers, predictions, correct, output_list], index=[
-            "qid", "question", "answers", "prediction", "correct", "output"]).T
+
+        if ext == ".jsonl":
+            with open(args.output_file, "w", encoding="utf-8") as output_file:
+                for a,b,c,d,e,f in zip(qid, texts, answers, predictions, correct, output_list):
+                    output_file.write(json.dumps(
+                        dict(qid=a,
+                             question=b,
+                             answers=c,
+                             prediction=d,
+                             correct=e,
+                             output=f,
+                         ),
+                        ensure_ascii=False))
+                    output_file.write("\n")
+        elif ext == ".csv":
+            df_ans = pd.DataFrame([qid, texts, answers, predictions, correct, output_list], index=[
+                    "qid", "question", "answers", "prediction", "correct", "output"]).T
+            df_ans.to_csv(args.output_file)
     else:
-        df_ans = pd.DataFrame([qid, texts, predictions, output_list], index=[
-            "qid", "question", "prediction", "output"]).T
-
-    df_ans.to_csv(args.output_file)
-
+        if ext == ".jsonl":
+            with open(args.output_file, "w", encoding="utf-8") as output_file:
+                for a,b,c in zip(qid, texts, predictions):
+                    output_file.write(json.dumps(
+                        dict(qid=a,
+                             question=b,
+                             prediction=c,
+                         ),
+                        ensure_ascii=False))
+                    output_file.write("\n")
+        elif ext == ".csv":
+            df_ans = pd.DataFrame([qid, texts, predictions], index=[
+                "qid", "question", "prediction"]).T
+            df_ans.to_csv(args.output_file)
+    logger.info("estimation... DONE")
 
 if __name__ == "__main__":
 
@@ -162,11 +216,14 @@ if __name__ == "__main__":
                         help="If true, save GPT model in local environment.")
     parser.add_argument("--force_load_model",
                         action="store_true",
-                        help="If true, load model and tokenizer from online.")    
+                        help="If true, load model and tokenizer from online.")
     parser.add_argument("--lang",
                         type=str,
                         default="ja",
                         help="Language [ja,en]")
+    parser.add_argument("--debug",
+                        action="store_true",
+                        help="display output texts")
     args = parser.parse_args()
 
     main(args)
