@@ -16,7 +16,7 @@ $ bash setup.sh
 
 - Run python virtual env.
 ```bash
-. .venv/bin/activate
+$ . .venv/bin/activate
 ```
 
 
