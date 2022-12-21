@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends \
@@ -9,11 +9,13 @@ sudo apt-get install -y --no-install-recommends \
     curl \
     gcc
 
-mkdir -p data work models
+mkdir -p outputs
 
 pip install --upgrade pip
-pip install --user -r requirements.txt
+pip install -r requirements.txt
 
 # Download data
-wget -nc -O data/dev.jsonl https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_02/aio_02_train.jsonl
-wget -nc -O data/test.jsonl https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_02/aio_02_dev_unlabeled_v1.0.jsonl
+wget -nc https://storage.googleapis.com/lecnlp/models.tar.gz
+wget -nc https://storage.googleapis.com/lecnlp/data.tar.gz
+tar xvzf models.tar.gz
+tar xvzf data.tar.gz
