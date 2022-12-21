@@ -1,5 +1,5 @@
 # Introduction
-This repository holds a baseline model for exercises in Natural Language Processing 2023.
+This repository holds a baseline model for programming project in Natural Language Processing 2022.
 
 # Contents
 ## Environment construction
