@@ -15,52 +15,45 @@ $ bash setup.sh
 ```
 
 
-### Development Data
+### Development & Test Data
 
 The file is in json lines format, consisting mainly of the elements shown below.
 - `qid`: question id
-- `number`: integer type question id
 - `question`: question
 - `answers`: answers list
 ```json
 
 {
   "qid": "AIO02-0002", 
-  "competition": "第2回AI王", 
-  "section": "開発データ問題",
-  "number": 2, 
   "question": "氷った海に穴を開けて漁をすることから、漢字で「氷の下の魚」と書くタラ科の魚は何?",
   "answers": ["コマイ"]
-  }
-
-```
-### Test Data
-The test data is in JSON Lines (jsonl) format as shown below, containing only the question ID (qid) and the question text (question).
-```json
-{"qid": "AIO02-1001", "question": "全長は約10.9km。アメリカの国道1号線の一部である、フロリダ・キーズの島々を結ぶ橋の名前は何?"}
-
-{"qid": "AIO02-1002", "question": "コロイド溶液に光を通した時、光の散乱によって道筋が見える、という現象を、発見者にちなんで何現象という?"}
+}
 ```
 
-## Zero-shot inference using Japanese GPT model
-By executing the following code, you can perform zero-shot inference using rinna Corporation's [Japanese GPT model](https://huggingface.co/rinna/japanese-gpt-1b).
-### Development Data
+## Zero-shot inference
+By executing the following code, you can perform zero-shot inference
+
+### Evaluate Test Data
 ```bash
 # Example
-$ python eval_model_jsonl.py data/dev.jsonl --output_file work/model_answer.csv --save_model --sample 1000
+$ python eval_model_jsonl.py data/LecNLP_test_ja.jsonl --output_file outputs/LecNLP_test_ja_prediction.jsonl --lang ja
+$ python eval_model_jsonl.py data/LecNLP_test_en.jsonl --output_file outputs/LecNLP_test_en_prediction.jsonl --lang en
+
+# Example: Evaluate only 100 samples from test data (determined as the --sample option for faster development)
+$ python eval_model_jsonl.py data/LecNLP_test_ja.jsonl --output_file outputs/LecNLP_test_ja_prediction.jsonl --lang ja --sample 100
 ```
+#### Japanese: originally rinna Corporation's [Japanese GPT model](https://huggingface.co/rinna/japanese-gpt-1b).
+#### English:  originally [gpt-2-large model](https://huggingface.co/gpt2-large).
+
+
+
 
 You can see the results in detail with the following command.
 ```bash
-$ less work/model_answer.csv
+$ jq -s '.'  outputs/LecNLP_test_ja_prediction.jsonl |less
+$ jq -s '.'  outputs/LecNLP_test_en_prediction.jsonl |less
 ```
 
-### Test Data
-By executing the following code, you can output model answers for test data.
-```bash
-# Example
-$ python eval_model_jsonl_unlabel.py data/test.jsonl --output_file work/model_answer.jsonl
-```
 
 ## Exercise Contents
 Add sentences to the question text to create your own prompt. Modify add_prompt function in util.py.
@@ -71,11 +64,31 @@ Add sentences to the question text to create your own prompt. Modify add_prompt 
 Input: question
 Output: prompt
 Note:
-    ・The model's answer is the content of the model's output 「」
-    ・So, it is better to end the prompt with 「 
+    ・The model's answer is the content of the model's output 「」(Japanese) or [ ] (English)
+    ・So, it is better to end the prompt with "「" (Japanese) or "[" (english)
 '''
-def add_prompt(question: str, **kwargs: dict[str, Any]) -> str:
+def add_prompt(question: str, lang: str, **kwargs: dict[str, Any]) -> str:
     # Add your prompt
-    return f'{question}答えは「'
+    if lang == "en":
+        prompt = f"Answer this question: {question}? Answer: ["
+    elif lang == "ja":
+        prompt = f'{question}の答えは「'
+    else:
+        assert 0, lang
+    return prompt
 
+
+'''
+Input: model prediction str
+Output: answer str
+Note:
+    ・You can also change this part if you want.
+'''
+def extract_answer(output: str, lang: str) -> str:
+    if lang == "en":
+        return re.findall("\[(.*?)\]", output)[-1] # capture []
+    elif lang == "ja":
+        return re.findall("「(.*?)」", output)[-1] # capture 「」
+    else:
+        assert 0, lang
 ```
