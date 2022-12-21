@@ -218,6 +218,7 @@ if __name__ == "__main__":
     parser.add_argument("--lang",
                         type=str,
                         default="ja",
+                        choices=["ja", "en"],
                         help="Language [ja,en]")
     parser.add_argument("--debug",
                         action="store_true",
