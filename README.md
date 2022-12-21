@@ -16,7 +16,7 @@ $ bash setup.sh
 
 - Run python virtual env.
 ```bash
-. .venv/bin/activate
+$ . .venv/bin/activate
 ```
 
 
@@ -55,8 +55,8 @@ $ python eval_model_jsonl.py data/LecNLP_test_ja.jsonl --output_file outputs/Lec
 
 You can see the results in detail with the following command.
 ```bash
-$ jq -s '.'  outputs/LecNLP_test_ja_prediction.jsonl |less
-$ jq -s '.'  outputs/LecNLP_test_en_prediction.jsonl |less
+$ jq -s '.' outputs/LecNLP_test_ja_prediction.jsonl | less
+$ jq -s '.' outputs/LecNLP_test_en_prediction.jsonl | less
 ```
 
 
