@@ -7,7 +7,11 @@ sudo apt-get install -y --no-install-recommends \
     wget \
     vim \
     curl \
+    python3-venv \
     gcc
+
+python3 -m venv .venv
+. .venv/bin/activate
 
 mkdir -p outputs
 
