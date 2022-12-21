@@ -60,8 +60,8 @@ def main(args):
         #load_in_8bit=True,
         device_map="auto",
     )
+    logger.info(f"##### pad:[{tokenizer.pad_token_id}][{tokenizer.pad_token}] bos:[{tokenizer.bos_token_id}][{tokenizer.bos_token}] eos:[{tokenizer.eos_token_id}][{tokenizer.eos_token}]")
     if args.lang == "en":
-        logger.info(f"##### pad:[{tokenizer.pad_token_id}][{tokenizer.pad_token}] bos:[{tokenizer.bos_token_id}][{tokenizer.bos_token}] eos:[{tokenizer.eos_token_id}][{tokenizer.eos_token}]")
         tokenizer.pad_token_id = tokenizer.eos_token_id
         tokenizer.pad_token = tokenizer.eos_token
         logger.info(f"##### pad:[{tokenizer.pad_token_id}][{tokenizer.pad_token}] bos:[{tokenizer.bos_token_id}][{tokenizer.bos_token}] eos:[{tokenizer.eos_token_id}][{tokenizer.eos_token}]")
