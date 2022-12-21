@@ -58,7 +58,7 @@ def main(args):
         t_mdl,
         torch_dtype=torch.float16,
         #load_in_8bit=True,
-        device_map="auto",
+        #device_map="auto",
     )
     logger.info(f"##### pad:[{tokenizer.pad_token_id}][{tokenizer.pad_token}] bos:[{tokenizer.bos_token_id}][{tokenizer.bos_token}] eos:[{tokenizer.eos_token_id}][{tokenizer.eos_token}]")
     if args.lang == "en":
