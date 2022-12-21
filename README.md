@@ -9,9 +9,14 @@ $ git clone https://github.com/cl-tohoku/AIO3_GPT_baseline_for_NLP.git
 $ cd AIO3_GPT_baseline_for_NLP
 ```
 
-- Execute the following command.
+- Execute the following command for setup.
 ```bash
 $ bash setup.sh
+```
+
+- Run python virtual env.
+```bash
+. .venv/bin/activate
 ```
 
 
