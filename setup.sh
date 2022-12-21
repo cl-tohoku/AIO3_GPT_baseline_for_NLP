@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends \
@@ -7,12 +7,16 @@ sudo apt-get install -y --no-install-recommends \
     wget \
     vim \
     curl \
+    python3-venv \
     gcc
 
-mkdir -p work models
+python3 -m venv .venv
+. .venv/bin/activate
+
+mkdir -p outputs
 
 pip install --upgrade pip
-pip install --user -r requirements.txt
+pip install -r requirements.txt
 
 # if you need load_in_8bit
 #pip install git+https://github.com/huggingface/transformers.git                                   
@@ -20,5 +24,8 @@ pip install --user -r requirements.txt
 #pip install bitsandbytes
 
 # Download data
-#wget -nc -O data/dev.jsonl https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_02/aio_02_train.jsonl
-#wget -nc -O data/test.jsonl https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_02/aio_02_dev_unlabeled_v1.0.jsonl
+wget -nc https://storage.googleapis.com/lecnlp/models.tar.gz
+wget -nc https://storage.googleapis.com/lecnlp/data.tar.gz
+tar xvzf models.tar.gz
+tar xvzf data.tar.gz
+
