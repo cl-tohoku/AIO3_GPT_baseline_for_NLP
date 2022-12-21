@@ -5,7 +5,7 @@ This repository holds a baseline model for exercises in Natural Language Process
 ## Environment construction
 - First, clone this repository with the following command.
 ```bash
-$ git clone https://github.com/cl-tohoku/AIO3_GPT_baseline_for_NLP.git
+$ git clone -b js_fix1 https://github.com/cl-tohoku/AIO3_GPT_baseline_for_NLP.git
 $ cd AIO3_GPT_baseline_for_NLP
 ```
 
