@@ -13,9 +13,9 @@ Note:
 def add_prompt(question: str, lang: str, **kwargs: dict[str, Any]) -> str:
     # Add your prompt
     if lang == "en":
-        prompt = f"Answer this question: {question}? Answer: ["
+        prompt = f"Question: {question}? Answer: ["
     elif lang == "ja":
-        prompt = f'{question}の答えは「'
+        prompt = f'質問：{question}? 回答：「'
     else:
         assert 0, lang
     return prompt
