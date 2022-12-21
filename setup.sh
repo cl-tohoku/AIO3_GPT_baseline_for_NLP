@@ -25,7 +25,7 @@ pip install -r requirements.txt
 
 # Download data
 wget -nc https://storage.googleapis.com/lecnlp/models.tar.gz
-wget -nc https://storage.googleapis.com/lecnlp/data.tar.gz
+wget -nc https://storage.googleapis.com/lecnlp/data_lecnlp.tar.gz
 tar xvzf models.tar.gz
-tar xvzf data.tar.gz
+tar xvzf data_lecnlp.tar.gz
 
