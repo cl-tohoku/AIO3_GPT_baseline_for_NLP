@@ -6,7 +6,6 @@ import argparse
 import os
 
 from util import add_prompt, extract_answer
-import accelerate
 import logging
 import json
 
