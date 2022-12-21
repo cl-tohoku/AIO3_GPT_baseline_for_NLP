@@ -30,7 +30,7 @@ def main(args):
 
     ### load pretrained model ###
     if args.lang == "en":
-        model_path = "../model_en_v3/" #'./models/english-gpt.pt'
+        model_path = './models/english-gpt.pt'
         tokenizer_path = './models/english-gpt_tokenizer'
     elif args.lang == "ja":
         model_path = './models/japanese-gpt.pt'
@@ -205,7 +205,7 @@ if __name__ == "__main__":
                         help="Evaluation data set written in json lines format with one question per line.")
     parser.add_argument("--output_file",
                         type=str,
-                        default="work/model_answer.csv",
+                        default="not_set",
                         help="Where to save GPT model output.")
     parser.add_argument("--sample",
                         default=-1,
