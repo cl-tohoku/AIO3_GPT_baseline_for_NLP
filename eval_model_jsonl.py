@@ -5,7 +5,7 @@ from tqdm import tqdm
 import argparse
 import os
 
-from util import add_prompt, extract_answer
+from util import add_prompt, extract_answer, preprocess
 import logging
 import json
 
@@ -94,12 +94,14 @@ def main(args):
     predictions = []
     output_list = []
     max_length = 100
+    logger.info("start preprocess...")
+    preprocess_result = preprocess()
 
     logger.info("start estimation...")
     ### predict answer ###
     for text in tqdm(texts, total=len(texts)):
         #################
-        text = add_prompt(text, args.lang) # add your own prompt to question
+        text = add_prompt(text, args.lang, preprocess_result) # add your own prompt to question
         #################
         token_ids = tokenizer.encode(
             text, add_special_tokens=False, return_tensors="pt")

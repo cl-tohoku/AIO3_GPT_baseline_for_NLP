@@ -1,7 +1,23 @@
 from __future__ import annotations
 import re
 from typing import Any
+import json
 
+
+'''
+Output: dict
+Note:
+    ・ The result returned by preprocess can be called in add_prompt
+'''
+def preprocess() -> dict:
+    if lang == "en":
+        dev_name = 'LecNLP_dev_en.jsonl'
+    elif lang == "ja":
+        dev_name = 'LecNLP_dev_ja.jsonl'
+    dev_data = pd.read_json(dev_name, lines=True)
+    
+    preprocess_result = {'dev_data': dev_data}
+    return preprocess_result
 
 '''
 Input: question
@@ -10,7 +26,7 @@ Note:
     ・The model's answer is the content of the model's output 「」(Japanese) or [ ] (English)
     ・So, it is better to end the prompt with "「" (Japanese) or "[" (english)
 '''
-def add_prompt(question: str, lang: str, **kwargs: dict[str, Any]) -> str:
+def add_prompt(question: str, lang: str, preprocess_result: dict, **kwargs: dict[str, Any]) -> str:
     # Add your prompt
     if lang == "en":
         prompt = f"Question: {question}? Answer: ["
