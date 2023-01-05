@@ -7,7 +7,7 @@ import json
 '''
 Output: dict
 Note:
-    ・ The result returned by preprocess can be called in add_prompt
+    ・The result returned by preprocess can be called in add_prompt
 '''
 def preprocess() -> dict:
     if lang == "en":
