@@ -11,9 +11,9 @@ Note:
 '''
 def preprocess() -> dict:
     if lang == "en":
-        dev_name = 'LecNLP_dev_en.jsonl'
+        dev_name = 'data/LecNLP_dev_en.jsonl'
     elif lang == "ja":
-        dev_name = 'LecNLP_dev_ja.jsonl'
+        dev_name = 'data/LecNLP_dev_ja.jsonl'
     dev_data = pd.read_json(dev_name, lines=True)
     
     preprocess_result = {'dev_data': dev_data}
