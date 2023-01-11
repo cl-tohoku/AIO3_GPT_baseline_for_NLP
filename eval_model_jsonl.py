@@ -95,7 +95,7 @@ def main(args):
     output_list = []
     max_length = 100
     logger.info("start preprocess...")
-    preprocess_result = preprocess()
+    preprocess_result = preprocess(args.lang)
 
     logger.info("start estimation...")
     ### predict answer ###
