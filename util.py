@@ -9,7 +9,7 @@ Output: dict
 Note:
     ・The result returned by preprocess can be called in add_prompt
 '''
-def preprocess() -> dict:
+def preprocess(lang: str) -> dict:
     if lang == "en":
         dev_name = 'data/LecNLP_dev_en.jsonl'
     elif lang == "ja":
